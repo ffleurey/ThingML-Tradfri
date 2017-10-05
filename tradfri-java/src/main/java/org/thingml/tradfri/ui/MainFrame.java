@@ -51,7 +51,7 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
 
         jLabel1.setText("Gateway IP:");
 
-        jTextFieldIP.setText("10.3.1.180");
+        jTextFieldIP.setText("10.3.1.85");
 
         jButtonConnect.setText("Start");
         jButtonConnect.addActionListener(new java.awt.event.ActionListener() {
@@ -62,7 +62,7 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
 
         jLabel2.setText("Security Key:");
 
-        jTextFieldKey.setText("5HV7ibb4brgWL18x");
+        jTextFieldKey.setText("kQxkI7S6Ao4rgwYC");
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/logo.png"))); // NOI18N
 
@@ -76,7 +76,6 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
