@@ -19,12 +19,64 @@ import org.json.JSONObject;
 
 public class TradfriGateway implements Runnable {
     
-        private Logger logger = Logger.getLogger(TradfriGateway.class.getName());
+        /**
+         * Gateway properties and constructor
+         */
+        protected String gateway_ip;
+	protected String security_key;
+        protected int polling_rate = 5000;
+    
+        public TradfriGateway(String gateway_ip, String security_key) {
+		this.gateway_ip = gateway_ip;
+		this.security_key = security_key;
+	}
+
+        public String getGateway_ip() {
+            return gateway_ip;
+        }
+
+        public void setGateway_ip(String gateway_ip) {
+            this.gateway_ip = gateway_ip;
+        }
+
+        public String getSecurity_key() {
+            return security_key;
+        }
+
+        public void setSecurity_key(String security_key) {
+            this.security_key = security_key;
+        }
+
+        public int getPolling_rate() {
+            return polling_rate;
+        }
+
+        public void setPolling_rate(int polling_rate) {
+            // between 1 and 60 seconds
+            if (polling_rate < 1000) polling_rate = 1000;
+            else if (polling_rate > 60000) polling_rate = 60000;
+            this.polling_rate = polling_rate;
+        }
         
+        
+        
+        /**
+         * Gateway public API
+         */
+        public void startTradfriGateway() {
+            
+        }
+        
+        /**
+         * Logger to be used for all console outputs, errors and exceptions
+         */
+        private Logger logger = Logger.getLogger(TradfriGateway.class.getName());
         public Logger getLogger() { return logger; }
     
+        /**
+         * Observer pattern for asynchronous event notification
+         */
         private ArrayList<TradfriGatewayListener> listners = new ArrayList<TradfriGatewayListener>();
-	
 	public void addTradfriGatewayListener(TradfriGatewayListener l) {
 		listners.add(l);
 	}
@@ -33,54 +85,10 @@ public class TradfriGateway implements Runnable {
 	}
 	public void clearTradfriGatewayListener() {
 		listners.clear();
-	}
-
-	protected String gateway_ip;
-	protected String security_key;
-	
-	private CoapEndpoint coap = null;
-	
-	ArrayList<LightBulb> bulbs = new ArrayList<LightBulb>();
-	
-	public TradfriGateway(String gateway_ip, String security_key) {
-		this.gateway_ip = gateway_ip;
-		this.security_key = security_key;
-	}
-	
-	protected void initCoap() {
-		DtlsConnectorConfig.Builder builder = new DtlsConnectorConfig.Builder(); //new InetSocketAddress(0)
-		builder.setPskStore(new StaticPskStore("", security_key.getBytes()));
-		coap = new CoapEndpoint(new DTLSConnector(builder.build()), NetworkConfig.getStandard());
-	}
-	
-	protected CoapResponse get(String path) {
-                Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "GET: " + "coaps://" + gateway_ip + "/" + path);
-		CoapClient client = new CoapClient("coaps://" + gateway_ip + "/" + path);
-		client.setEndpoint(coap);
-		CoapResponse response = client.get(1);
-		if (response == null) {
-			logger.log(Level.SEVERE, "Connection to Gateway timed out, please check ip address or increase the ACK_TIMEOUT in the Californium.properties file");
-		}
-		return response;
-	}
-        
-        protected void set(String path, String payload) {
-            Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "SET: " + "coaps://" + gateway_ip + "/" + path + " = " + payload);
-            CoapClient client = new CoapClient("coaps://" + gateway_ip + "/" + path);
-            client.setEndpoint(coap);
-            CoapResponse response = client.put(payload, MediaTypeRegistry.TEXT_PLAIN);
-            if (response != null && response.isSuccess()) {
-                    //System.out.println("Yay");
-            } else {
-                    logger.log(Level.SEVERE, "Sending payload to " + "coaps://" + gateway_ip + "/" + path + " failed!");
-            }
-            client.shutdown();
-	}
-        
-        public void setBulbOnOff(LightBulb b, boolean on) {
-            
         }
         
+        // Collection of bulbs registered on the gateway
+	ArrayList<LightBulb> bulbs = new ArrayList<LightBulb>();
 	
 	protected void dicoverBulbs() {
 		bulbs.clear();
@@ -125,4 +133,38 @@ public class TradfriGateway implements Runnable {
             }
         }
     }
+    
+        /**
+         * COAPS helpers to GET and SET on the IKEA Tradfri gateway using Californium
+         */
+	private CoapEndpoint coap = null;
+	protected void initCoap() {
+		DtlsConnectorConfig.Builder builder = new DtlsConnectorConfig.Builder(); //new InetSocketAddress(0)
+		builder.setPskStore(new StaticPskStore("", security_key.getBytes()));
+		coap = new CoapEndpoint(new DTLSConnector(builder.build()), NetworkConfig.getStandard());
+	}
+	
+	protected CoapResponse get(String path) {
+                Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "GET: " + "coaps://" + gateway_ip + "/" + path);
+		CoapClient client = new CoapClient("coaps://" + gateway_ip + "/" + path);
+		client.setEndpoint(coap);
+		CoapResponse response = client.get(1);
+		if (response == null) {
+			logger.log(Level.SEVERE, "Connection to Gateway timed out, please check ip address or increase the ACK_TIMEOUT in the Californium.properties file");
+		}
+		return response;
+	}
+        
+        protected void set(String path, String payload) {
+            Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "SET: " + "coaps://" + gateway_ip + "/" + path + " = " + payload);
+            CoapClient client = new CoapClient("coaps://" + gateway_ip + "/" + path);
+            client.setEndpoint(coap);
+            CoapResponse response = client.put(payload, MediaTypeRegistry.TEXT_PLAIN);
+            if (response != null && response.isSuccess()) {
+                    //System.out.println("Yay");
+            } else {
+                    logger.log(Level.SEVERE, "Sending payload to " + "coaps://" + gateway_ip + "/" + path + " failed!");
+            }
+            client.shutdown();
+	}
 }
