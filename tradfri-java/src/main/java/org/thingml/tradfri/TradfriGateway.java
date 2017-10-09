@@ -58,13 +58,23 @@ public class TradfriGateway implements Runnable {
             this.polling_rate = polling_rate;
         }
         
+        private boolean running = false;
         
+        public boolean isRunning() {
+            return running;
+        }
         
         /**
          * Gateway public API
          */
         public void startTradfriGateway() {
-            
+            if (running) return;
+            running = true;
+            new Thread(this).start();
+        }
+        
+        public void stopTradfriGateway() {
+            running = false;
         }
         
         /**
@@ -120,18 +130,19 @@ public class TradfriGateway implements Runnable {
         Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "Discovering Devices...");
         dicoverBulbs();
         Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "Discovered " + bulbs.size() + " Bulbs.");
-        while(true) {
-            try {
-                Thread.sleep(5000);
+        try {
+        while(running) {
+                Thread.sleep(getPolling_rate());
                 Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "Polling bulbs status...");
                 for (LightBulb b : bulbs) {
                         b.updateBulb();
                         //System.out.println(b.toString());
                 }                
-            } catch (InterruptedException ex) {
-                Logger.getLogger(TradfriGateway.class.getName()).log(Level.SEVERE, null, ex);
             }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(TradfriGateway.class.getName()).log(Level.SEVERE, null, ex);
         }
+        running = false;
     }
     
         /**

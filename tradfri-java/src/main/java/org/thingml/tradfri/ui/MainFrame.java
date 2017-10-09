@@ -5,6 +5,7 @@
  */
 package org.thingml.tradfri.ui;
 
+import java.util.prefs.Preferences;
 import org.thingml.tradfri.LightBulb;
 import org.thingml.tradfri.TradfriGateway;
 import org.thingml.tradfri.TradfriGatewayListener;
@@ -15,11 +16,15 @@ import org.thingml.tradfri.TradfriGatewayListener;
  */
 public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListener {
 
+    Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
+    
     /**
      * Creates new form MainFrame
      */
     public MainFrame() {
         initComponents();
+        jTextFieldIP.setText(prefs.get("TradfriGatewayIP", "10.3.1.85"));         //
+        jTextFieldKey.setText(prefs.get("TradfriGatewayKey", "kQxkI7S6Ao4rgwYC")); // 5HV7ibb4brgWL18x
     }
 
     /**
@@ -41,6 +46,9 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jCheckBoxShowOnlyOnline = new javax.swing.JCheckBox();
+        jLabel5 = new javax.swing.JLabel();
+        jTextFieldPRate = new javax.swing.JTextField();
+        jButtonStop = new javax.swing.JButton();
         jSplitPane1 = new javax.swing.JSplitPane();
         jScrollPaneBulbs = new javax.swing.JScrollPane();
         jPanelBulbs = new javax.swing.JPanel();
@@ -70,28 +78,36 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
 
         jCheckBoxShowOnlyOnline.setText("Show Only Online Bulbs");
 
+        jLabel5.setText("Polling Rate:");
+
+        jTextFieldPRate.setText("5000");
+
+        jButtonStop.setText("Stop");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jLabel3)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2))
+                        .addComponent(jProgressBarDiscover, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextFieldKey)
-                            .addComponent(jTextFieldIP)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jProgressBarDiscover, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonConnect))))
+                        .addComponent(jButtonConnect)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonStop))
+                    .addComponent(jTextFieldIP)
+                    .addComponent(jTextFieldKey)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jTextFieldPRate)
+                        .addGap(18, 18, 18)
                         .addComponent(jCheckBoxShowOnlyOnline)))
                 .addContainerGap())
         );
@@ -112,11 +128,16 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
                             .addComponent(jLabel2)
                             .addComponent(jTextFieldKey, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jCheckBoxShowOnlyOnline)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jCheckBoxShowOnlyOnline)
+                            .addComponent(jLabel5)
+                            .addComponent(jTextFieldPRate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jProgressBarDiscover, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButtonConnect, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jButtonConnect)
+                                .addComponent(jButtonStop))
                             .addComponent(jLabel4))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -153,10 +174,13 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
     private void jButtonConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConnectActionPerformed
         gateway = new TradfriGateway(jTextFieldIP.getText(), jTextFieldKey.getText());
         gateway.addTradfriGatewayListener(this);
+        prefs.put("TradfriGatewayIP", jTextFieldIP.getText().trim());
+        prefs.put("TradfriGatewayKey", jTextFieldKey.getText().trim());
         new Thread(gateway).start();
         jButtonConnect.setEnabled(false);
         jTextFieldIP.setEditable(false);
         jTextFieldKey.setEditable(false);
+        jCheckBoxShowOnlyOnline.setEnabled(false);
     }//GEN-LAST:event_jButtonConnectActionPerformed
 
     /**
@@ -176,11 +200,13 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonConnect;
+    private javax.swing.JButton jButtonStop;
     private javax.swing.JCheckBox jCheckBoxShowOnlyOnline;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanelBulbs;
     private javax.swing.JProgressBar jProgressBarDiscover;
@@ -188,6 +214,7 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTextField jTextFieldIP;
     private javax.swing.JTextField jTextFieldKey;
+    private javax.swing.JTextField jTextFieldPRate;
     private org.thingml.tradfri.ui.LoggingPanel loggingPanel1;
     // End of variables declaration//GEN-END:variables
 
