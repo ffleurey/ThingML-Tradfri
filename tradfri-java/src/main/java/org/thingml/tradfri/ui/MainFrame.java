@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.thingml.tradfri.ui;
 
 import java.util.prefs.Preferences;
@@ -25,6 +20,8 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
         initComponents();
         jTextFieldIP.setText(prefs.get("TradfriGatewayIP", "10.3.1.85"));         //
         jTextFieldKey.setText(prefs.get("TradfriGatewayKey", "kQxkI7S6Ao4rgwYC")); // 5HV7ibb4brgWL18x
+        gateway.addTradfriGatewayListener(this);
+        jButtonStop.setEnabled(false);
     }
 
     /**
@@ -83,6 +80,11 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
         jTextFieldPRate.setText("5000");
 
         jButtonStop.setText("Stop");
+        jButtonStop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonStopActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -169,19 +171,21 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-       TradfriGateway gateway;
+       TradfriGateway gateway = new TradfriGateway();
     
     private void jButtonConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConnectActionPerformed
-        gateway = new TradfriGateway(jTextFieldIP.getText(), jTextFieldKey.getText());
-        gateway.addTradfriGatewayListener(this);
+        gateway.setGateway_ip(jTextFieldIP.getText());
+        gateway.setSecurity_key(jTextFieldKey.getText());
         prefs.put("TradfriGatewayIP", jTextFieldIP.getText().trim());
         prefs.put("TradfriGatewayKey", jTextFieldKey.getText().trim());
-        new Thread(gateway).start();
+        gateway.startTradfriGateway();
         jButtonConnect.setEnabled(false);
-        jTextFieldIP.setEditable(false);
-        jTextFieldKey.setEditable(false);
-        jCheckBoxShowOnlyOnline.setEnabled(false);
     }//GEN-LAST:event_jButtonConnectActionPerformed
+
+    private void jButtonStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStopActionPerformed
+        gateway.stopTradfriGateway();
+        jButtonStop.setEnabled(false);
+    }//GEN-LAST:event_jButtonStopActionPerformed
 
     /**
      * @param args the command line arguments
@@ -218,25 +222,59 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
     private org.thingml.tradfri.ui.LoggingPanel loggingPanel1;
     // End of variables declaration//GEN-END:variables
 
-    public void discoveryStarted(int total_devices) {
+    @Override
+    public void gateway_initializing() {
+        jTextFieldIP.setEditable(false);
+        jTextFieldKey.setEditable(false);
+        jCheckBoxShowOnlyOnline.setEnabled(false);
+    }
+
+    @Override
+    public void bulb_discovery_started(int total_devices) {
         jProgressBarDiscover.setMaximum(total_devices);
-        jProgressBarDiscover.setValue(0);
+        jProgressBarDiscover.setValue(1);
     }
 
-    public void dicoveryProgress(int current_device, int total_devices) {
-        jProgressBarDiscover.setValue(current_device);
-    }
-
-    public void discoveryCompleted() {
-        //jProgressBarDiscover.set(current_device);
-    }
-
-    public void foundLightBulb(LightBulb b) {
+    @Override
+    public void bulb_discovered(LightBulb b) {
+        jProgressBarDiscover.setValue(jProgressBarDiscover.getValue()+1);
         if (b.isOnline() || !jCheckBoxShowOnlyOnline.isSelected()) {
             BulbPanel p = new BulbPanel(b);
             jPanelBulbs.add(p);
             jPanelBulbs.revalidate();
             jPanelBulbs.repaint();
         }
+    }
+
+    @Override
+    public void bulb_discovery_completed() {
+        
+    }
+
+    @Override
+    public void gateway_started() {
+        jButtonStop.setEnabled(true);
+    }
+
+    @Override
+    public void gateway_stoped() {
+        jButtonStop.setEnabled(false);
+        jButtonConnect.setEnabled(true);
+        jTextFieldIP.setEditable(true);
+        jTextFieldKey.setEditable(true);
+        jCheckBoxShowOnlyOnline.setEnabled(true);
+        jPanelBulbs.removeAll();
+        jPanelBulbs.revalidate();
+        jPanelBulbs.repaint();
+    }
+
+    @Override
+    public void polling_started() {
+        
+    }
+
+    @Override
+    public void polling_completed(int bulb_count, int total_time) {
+        
     }
 }

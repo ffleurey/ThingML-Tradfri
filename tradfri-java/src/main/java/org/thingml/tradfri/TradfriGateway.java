@@ -26,6 +26,10 @@ public class TradfriGateway implements Runnable {
 	protected String security_key;
         protected int polling_rate = 5000;
     
+        public TradfriGateway() {
+             
+        }
+        
         public TradfriGateway(String gateway_ip, String security_key) {
 		this.gateway_ip = gateway_ip;
 		this.security_key = security_key;
@@ -64,20 +68,7 @@ public class TradfriGateway implements Runnable {
             return running;
         }
         
-        /**
-         * Gateway public API
-         */
-        public void startTradfriGateway() {
-            if (running) return;
-            running = true;
-            new Thread(this).start();
-        }
-        
-        public void stopTradfriGateway() {
-            running = false;
-        }
-        
-        /**
+         /**
          * Logger to be used for all console outputs, errors and exceptions
          */
         private Logger logger = Logger.getLogger(TradfriGateway.class.getName());
@@ -97,15 +88,60 @@ public class TradfriGateway implements Runnable {
 		listners.clear();
         }
         
+        /**
+         * Gateway public API
+         */
+        public void startTradfriGateway() {
+            if (running) return;
+            running = true;
+            new Thread(this).start();
+        }
+        
+        public void stopTradfriGateway() {
+            running = false;
+        }
+        
+        public void run() {
+            for (TradfriGatewayListener l : listners) l.gateway_initializing();
+            Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "Tradfri Gateway is initalizing...");
+            initCoap();
+            Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "Discovering Devices...");
+            if (dicoverBulbs()) {
+                Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "Discovered " + bulbs.size() + " Bulbs.");
+                for (TradfriGatewayListener l : listners) l.gateway_started();
+                try {
+                while(running) {
+                        Thread.sleep(getPolling_rate());
+                        Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "Polling bulbs status...");
+                        for (TradfriGatewayListener l : listners) l.polling_started();
+                        long before = System.currentTimeMillis();
+                        for (LightBulb b : bulbs) {
+                                b.updateBulb();
+                                //System.out.println(b.toString());
+                        }
+                        long after = System.currentTimeMillis();
+                        for (TradfriGatewayListener l : listners) l.polling_completed(bulbs.size(), (int)(after - before));
+                    }
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TradfriGateway.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            running = false;
+            for (TradfriGatewayListener l : listners) l.gateway_stoped();
+        }
+        
+       
+        
         // Collection of bulbs registered on the gateway
 	ArrayList<LightBulb> bulbs = new ArrayList<LightBulb>();
 	
-	protected void dicoverBulbs() {
+	protected boolean dicoverBulbs() {
 		bulbs.clear();
 		try {
 			CoapResponse response = get(TradfriConstants.DEVICES);
+                        if (response == null) return false;
 			JSONArray devices = new JSONArray(response.getResponseText());
-                        for (TradfriGatewayListener l : listners) l.discoveryStarted(devices.length());
+                        for (TradfriGatewayListener l : listners) l.bulb_discovery_started(devices.length());
 			for (int i = 0; i < devices.length(); i++) {
 				response = get(TradfriConstants.DEVICES + "/" + devices.getInt(i));
 				if (response != null) {
@@ -113,37 +149,21 @@ public class TradfriGateway implements Runnable {
 					if (json.has(TradfriConstants.TYPE) && json.getInt(TradfriConstants.TYPE) == TradfriConstants.TYPE_BULB) {
 						LightBulb b = new LightBulb(json.getInt(TradfriConstants.INSTANCE_ID), this, response);
                                                 bulbs.add(b);
-                                                for (TradfriGatewayListener l : listners) l.foundLightBulb(b);
+                                                for (TradfriGatewayListener l : listners) l.bulb_discovered(b);
 					}
 				}
-                                for (TradfriGatewayListener l : listners) l.dicoveryProgress(i+1, devices.length());
+                                
 			}
-                        for (TradfriGatewayListener l : listners) l.discoveryCompleted();
+                        for (TradfriGatewayListener l : listners) l.bulb_discovery_completed();
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE,"Error parsing response from the Tradfri gateway", e);
+                        return false;
+                 
 		}
+                return true;
 	}
 
-    public void run() {
-        Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "Tradfri Gateway is initalizing...");
-        initCoap();
-        Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "Discovering Devices...");
-        dicoverBulbs();
-        Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "Discovered " + bulbs.size() + " Bulbs.");
-        try {
-        while(running) {
-                Thread.sleep(getPolling_rate());
-                Logger.getLogger(TradfriGateway.class.getName()).log(Level.INFO, "Polling bulbs status...");
-                for (LightBulb b : bulbs) {
-                        b.updateBulb();
-                        //System.out.println(b.toString());
-                }                
-            }
-        } catch (InterruptedException ex) {
-            Logger.getLogger(TradfriGateway.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        running = false;
-    }
+    
     
         /**
          * COAPS helpers to GET and SET on the IKEA Tradfri gateway using Californium

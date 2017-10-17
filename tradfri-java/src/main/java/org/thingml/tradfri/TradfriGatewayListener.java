@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.thingml.tradfri;
 
 import java.util.logging.Logger;
@@ -13,9 +8,14 @@ import java.util.logging.Logger;
  */
 public interface TradfriGatewayListener {
        
-    public void discoveryStarted(int total_devices);
-    public void dicoveryProgress(int current_device, int total_devices);
-    public void discoveryCompleted();
+    public void gateway_initializing();
+    public void bulb_discovery_started(int total_devices);
+    public void bulb_discovered(LightBulb b);
+    public void bulb_discovery_completed();
+    public void gateway_started();
     
-    public void foundLightBulb(LightBulb b);
+    public void gateway_stoped();
+    
+    public void polling_started();
+    public void polling_completed(int bulb_count, int total_time);
 }

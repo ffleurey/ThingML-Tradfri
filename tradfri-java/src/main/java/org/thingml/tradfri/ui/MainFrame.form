@@ -176,6 +176,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Stop"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonStopActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

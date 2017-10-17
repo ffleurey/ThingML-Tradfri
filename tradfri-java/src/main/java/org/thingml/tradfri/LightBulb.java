@@ -12,12 +12,12 @@ import org.json.JSONObject;
 
 public class LightBulb {
 	
-	private ArrayList<LightBulbListner> listners = new ArrayList<LightBulbListner>();
+	private ArrayList<TradfriBulbListener> listners = new ArrayList<TradfriBulbListener>();
 	
-	public void addLightBulbListner(LightBulbListner l) {
+	public void addLightBulbListner(TradfriBulbListener l) {
 		listners.add(l);
 	}
-	public void removeLightBulbListner(LightBulbListner l) {
+	public void removeLightBulbListner(TradfriBulbListener l) {
 		listners.remove(l);
 	}
 	public void clearLightBulbListners() {
@@ -199,7 +199,7 @@ public class LightBulb {
 			e.printStackTrace();
 		}
 		if (updateListeners) {
-			for (LightBulbListner l : listners) l.lightBulbUpdate(this);
+			for (TradfriBulbListener l : listners) l.bulb_state_changed(this);
 		}
 	}
 	

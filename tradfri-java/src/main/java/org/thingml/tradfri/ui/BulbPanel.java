@@ -7,14 +7,14 @@ package org.thingml.tradfri.ui;
 
 import javax.swing.JButton;
 import org.thingml.tradfri.LightBulb;
-import org.thingml.tradfri.LightBulbListner;
 import org.thingml.tradfri.TradfriConstants;
+import org.thingml.tradfri.TradfriBulbListener;
 
 /**
  *
  * @author franck
  */
-public class BulbPanel extends javax.swing.JPanel implements LightBulbListner {
+public class BulbPanel extends javax.swing.JPanel implements TradfriBulbListener {
 
     protected LightBulb bulb;
     protected boolean updating = true;
@@ -231,7 +231,7 @@ public class BulbPanel extends javax.swing.JPanel implements LightBulbListner {
         updating = false;
     }
     
-    public void lightBulbUpdate(LightBulb bulb) {
+    public void bulb_state_changed(LightBulb bulb) {
         if (this.bulb == bulb)  updatePanelContent();
     }
 }
