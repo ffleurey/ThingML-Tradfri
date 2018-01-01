@@ -18,8 +18,10 @@ public class MainFrame extends javax.swing.JFrame implements TradfriGatewayListe
      */
     public MainFrame() {
         initComponents();
-        jTextFieldIP.setText(prefs.get("TradfriGatewayIP", "10.3.1.85"));         //
-        jTextFieldKey.setText(prefs.get("TradfriGatewayKey", "kQxkI7S6Ao4rgwYC")); // 5HV7ibb4brgWL18x
+        jTextFieldIP.setText(prefs.get("TradfriGatewayIP", "10.3.1.85"));         //192.168.1.13
+        jTextFieldIP.setText(prefs.get("TradfriGatewayIP", "192.168.1.13"));         //
+       // jTextFieldKey.setText(prefs.get("TradfriGatewayKey", "kQxkI7S6Ao4rgwYC")); // 5HV7ibb4brgWL18x
+        jTextFieldKey.setText(prefs.get("TradfriGatewayKey", "5HV7ibb4brgWL18x")); // 5HV7ibb4brgWL18x
         gateway.addTradfriGatewayListener(this);
         jButtonStop.setEnabled(false);
     }

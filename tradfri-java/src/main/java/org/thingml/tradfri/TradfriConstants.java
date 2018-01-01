@@ -36,6 +36,7 @@ public class TradfriConstants {
 	public static final String ONOFF = "5850"; // "On/Off" in LwM2M registry
 	public static final String DIMMER = "5851"; // "Dimmer" in LwM2M registry
 	public static final String SCENE_ID = "9039"; // Property of rooms
+        
 	public static final String TRANSITION_TIME = "5712"; // not contained in LwM2M registry
 
 	// Color / Temperature related, these are independent of brightness, i.e. do not change if brightness does
@@ -51,6 +52,7 @@ public class TradfriConstants {
 	public static final String COLOR_WARM = "efd275";
 	public static final String COLOR_WARM_X = "33135";
 	public static final String COLOR_WARM_Y = "27211";
+       
 
 	// Dimmer related
 	public static final int DIMMER_MIN = 0;

@@ -29,6 +29,12 @@ public class LightBulb {
 	// Immutable information
 	private int id;
 	private String name;
+        
+        private JSONObject jsonObject;
+        
+        public JSONObject getJsonObject() {
+            return jsonObject;
+        }
 
     public int getId() {
         return id;
@@ -79,6 +85,7 @@ public class LightBulb {
                 array.put(settings);
                 json.put(TradfriConstants.LIGHT, array);
                 settings.put(TradfriConstants.DIMMER, intensity);
+                settings.put(TradfriConstants.TRANSITION_TIME, 5);
                 String payload = json.toString();
 		gateway.set(TradfriConstants.DEVICES + "/" + this.getId(), payload); 
                 
@@ -91,6 +98,51 @@ public class LightBulb {
     public String getColor() {
         return color;
     }
+    
+    public void sendJSONPayload(String json) {
+ 	gateway.set(TradfriConstants.DEVICES + "/" + this.getId(), json); 
+    }
+    
+    public void setRGBColor(int r, int g, int b) {
+        double red = r;
+        double green = g;
+        double blue = b;
+        
+        // gamma correction
+        red = (red > 0.04045) ? Math.pow((red + 0.055) / (1.0 + 0.055), 2.4) : (red / 12.92);
+        green = (green > 0.04045) ? Math.pow((green + 0.055) / (1.0 + 0.055), 2.4) : (green / 12.92);
+        blue = (blue > 0.04045) ? Math.pow((blue + 0.055) / (1.0 + 0.055), 2.4) : (blue / 12.92);
+        
+         // Wide RGB D65 conversion
+        // math inspiration: http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+        double X = red * 0.664511 + green * 0.154324 + blue * 0.162028;
+        double Y = red * 0.283881 + green * 0.668433 + blue * 0.047685;
+        double Z = red * 0.000088 + green * 0.072310 + blue * 0.986039;
+
+        // calculate the xy values from XYZ
+        double x = (X / (X + Y + Z));
+        double y = (Y / (X + Y + Z));
+
+        int xyX = (int) (x * 65535 + 0.5);
+        int xyY = (int) (y * 65535 + 0.5);
+        
+        try {
+               JSONObject json = new JSONObject();
+               JSONObject settings = new JSONObject();
+               JSONArray array = new JSONArray();
+               array.put(settings);
+               json.put(TradfriConstants.LIGHT, array);
+               settings.put(TradfriConstants.COLOR_X, xyX);
+               settings.put(TradfriConstants.COLOR_Y, xyY);
+               settings.put(TradfriConstants.TRANSITION_TIME, 5);
+               String payload = json.toString();
+               gateway.set(TradfriConstants.DEVICES + "/" + this.getId(), payload); 
+
+           } catch (JSONException ex) {
+               Logger.getLogger(TradfriGateway.class.getName()).log(Level.SEVERE, null, ex);
+           }
+
+    }
 
     public void setColor(String color) {
         try {
@@ -100,6 +152,7 @@ public class LightBulb {
                 array.put(settings);
                 json.put(TradfriConstants.LIGHT, array);
                 settings.put(TradfriConstants.COLOR, color);
+                settings.put(TradfriConstants.TRANSITION_TIME, 5);
                 String payload = json.toString();
 		gateway.set(TradfriConstants.DEVICES + "/" + this.getId(), payload); 
                 
@@ -135,8 +188,6 @@ public class LightBulb {
         public Date getDateLastSeen() {
             return dateLastSeen;
         }
-
-        
 	
 	public LightBulb(int id, TradfriGateway gateway) {
 		this.id = id;
@@ -159,7 +210,7 @@ public class LightBulb {
                 gateway.getLogger().log(Level.INFO, response.getResponseText());
 		try {
 			JSONObject json = new JSONObject(response.getResponseText());
-			
+			jsonObject = json;
                         String new_name = json.getString(TradfriConstants.NAME);
                         if (name == null || !name.equals(new_name)) updateListeners = true;
 			name = new_name;

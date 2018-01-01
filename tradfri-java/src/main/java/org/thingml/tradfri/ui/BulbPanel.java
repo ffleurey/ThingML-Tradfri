@@ -5,7 +5,18 @@
  */
 package org.thingml.tradfri.ui;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Frame;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import org.json.JSONException;
 import org.thingml.tradfri.LightBulb;
 import org.thingml.tradfri.TradfriConstants;
 import org.thingml.tradfri.TradfriBulbListener;
@@ -47,6 +58,9 @@ public class BulbPanel extends javax.swing.JPanel implements TradfriBulbListener
         jRadioWarm = new javax.swing.JRadioButton();
         jLabel2 = new javax.swing.JLabel();
         jLabelDates = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
 
         setMaximumSize(new java.awt.Dimension(32767, 89));
         setMinimumSize(new java.awt.Dimension(0, 89));
@@ -101,6 +115,35 @@ public class BulbPanel extends javax.swing.JPanel implements TradfriBulbListener
         jLabelDates.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabelDates.setText("Installed: Unknown - Last seen: Unknown - Firmware: Unknown");
 
+        jButton1.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        jButton1.setText("GET");
+        jButton1.setMaximumSize(new java.awt.Dimension(56, 18));
+        jButton1.setMinimumSize(new java.awt.Dimension(56, 18));
+        jButton1.setPreferredSize(new java.awt.Dimension(56, 18));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        jButton2.setText("SET");
+        jButton2.setMaximumSize(new java.awt.Dimension(56, 18));
+        jButton2.setMinimumSize(new java.awt.Dimension(56, 18));
+        jButton2.setPreferredSize(new java.awt.Dimension(56, 18));
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("Color");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -117,34 +160,46 @@ public class BulbPanel extends javax.swing.JPanel implements TradfriBulbListener
                             .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jTextFieldName)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jRadioWarm)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jRadioNormal)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jRadioCold))))
-                    .addComponent(jLabelDates, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabelDates, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jToggleButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jRadioCold)
-                    .addComponent(jRadioNormal)
-                    .addComponent(jRadioWarm)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jTextFieldName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(11, 11, 11)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jRadioCold)
+                        .addComponent(jRadioNormal)
+                        .addComponent(jRadioWarm)
+                        .addComponent(jTextFieldName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton3)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabelDates)
-                .addGap(13, 13, 13))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelDates)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -174,9 +229,54 @@ public class BulbPanel extends javax.swing.JPanel implements TradfriBulbListener
         bulb.setColor(TradfriConstants.COLOR_COLD);
     }//GEN-LAST:event_jRadioColdActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        
+        try {
+            //JOptionPane pane = new JOptionPane();
+            //pane.setMessageType(JOptionPane.INFORMATION_MESSAGE);
+            JDialog dialog = new JDialog((Frame)null, "Result of COAP GET for bulb " + bulb.getName(), false);
+            JTextArea msg = new JTextArea(bulb.getJsonObject().toString(4) + "\n");
+            msg.setFont(new Font("monospaced", Font.PLAIN, 10));
+            msg.setLineWrap(true);
+            msg.setWrapStyleWord(true);
+            JScrollPane scrollPane = new JScrollPane(msg);
+            
+            dialog.getContentPane().add(scrollPane);
+            dialog.setSize(350, 350);
+            //dialog.pack();
+            dialog.setVisible(true);
+            
+            
+        } catch (JSONException ex) {
+            Logger.getLogger(BulbPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    protected String previous_put = "";
+    
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+
+        String put = JOptionPane.showInputDialog(this, "JSON to SET for bulb " + bulb.getName(), previous_put);
+        if (put != null) {
+            previous_put = put;
+            bulb.sendJSONPayload(put);
+        }
+        
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        Color c = JColorChooser.showDialog(null, "Choose a color", Color.WHITE);
+        if (c != null) {
+            bulb.setRGBColor(c.getRed(), c.getGreen(), c.getBlue());
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroupTemperature;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabelDates;
